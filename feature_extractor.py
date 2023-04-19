@@ -3,6 +3,7 @@ import constants
 import numpy as np
 import antropy as ant
 import os
+import random
 
 from scipy.integrate import simps
 from scipy import signal
@@ -93,13 +94,18 @@ class FeatureExtractor:
             test_labels_aro = []
             test_labels_dom = []
 
-            for i in range(1, self.NUM_SITUATIONS + 1):
+            situations = range(1, self.NUM_SITUATIONS + 1)
+            random.Random(sub * constants.SEED2).shuffle(situations)
+            train_situations = situations[:32]
+            test_situations = situations[32:]
+
+            for i in train_situations:
                 sub_sit_data = sub_data[sub][i]
                 data = []
                 labels_val = []
                 labels_aro = []
                 labels_dom = []
-            
+
                 for j in range(self.START_TIMESTAMP, self.DATA_LEN - self.WINDOW_SIZE, self.SAMPLING_FREQUENCY):
                     print(f"Sub {sub} Situation {i} / 40: ({j} - {j + self.WINDOW_SIZE}) / {len(sub_sit_data[0])} ; Channels = {len(sub_sit_data)}")
                     sample = sub_sit_data[:, j : j + self.WINDOW_SIZE]
@@ -112,31 +118,41 @@ class FeatureExtractor:
                     labels_val.append(0 if sub_labels[sub][i - 1][VALENCE] < 5 else 1)
                     labels_aro.append(0 if sub_labels[sub][i - 1][AROUSAL] < 5 else 1)
                     labels_dom.append(0 if sub_labels[sub][i - 1][DOMINANCE] < 5 else 1)
-
-                X_train, X_test, Y_train, Y_test = train_test_split(data, labels_val, test_size=0.20, random_state=constants.SEED1)
-                for x, y in zip(X_train, Y_train):
-                    train_data.append(x)
-                    train_labels_val.append(y)
-                for x, y in zip(X_test, Y_test):
-                    test_data.append(x)
-                    test_labels_val.append(y)
-
-                X_train, X_test, Y_train, Y_test = train_test_split(data, labels_aro, test_size=0.20, random_state=constants.SEED1)
-                for x, y in zip(X_train, Y_train):
-                    train_labels_aro.append(y)
-                for x, y in zip(X_test, Y_test):
-                    test_labels_dom.append(y)
-
-                X_train, X_test, Y_train, Y_test = train_test_split(data, labels_dom, test_size=0.20, random_state=constants.SEED1)
-                for x, y in zip(X_train, Y_train):
-                    train_labels_dom.append(y)
-                for x, y in zip(X_test, Y_test):
-                    test_labels_dom.append(y)
+                
+                train_data.extend(data)
+                train_labels_val.extend(labels_val)
+                train_labels_aro.extend(labels_aro)
+                train_labels_dom.extend(labels_dom)
                 
             train_data = np.array(train_data)
             train_labels_val = np.array(train_labels_val)
             train_labels_aro = np.array(train_labels_aro)
             train_labels_dom = np.array(train_labels_dom)
+
+            for i in test_situations:
+                sub_sit_data = sub_data[sub][i]
+                data = []
+                labels_val = []
+                labels_aro = []
+                labels_dom = []
+
+                for j in range(self.START_TIMESTAMP, self.DATA_LEN - self.WINDOW_SIZE, self.SAMPLING_FREQUENCY):
+                    print(f"Sub {sub} Situation {i} / 40: ({j} - {j + self.WINDOW_SIZE}) / {len(sub_sit_data[0])} ; Channels = {len(sub_sit_data)}")
+                    sample = sub_sit_data[:, j : j + self.WINDOW_SIZE]
+
+                    features = self.time_features(sample, self.NUM_CHANNELS, self.SAMPLING_FREQUENCY, self.WINDOW_SIZE)
+                    features.extend(self.frequency_features(sample, self.NUM_CHANNELS, self.SAMPLING_FREQUENCY, self.WINDOW_SIZE))
+                    features = np.array(features)
+                    print("Features shape = ", features.shape)
+                    data.append(features)
+                    labels_val.append(0 if sub_labels[sub][i - 1][VALENCE] < 5 else 1)
+                    labels_aro.append(0 if sub_labels[sub][i - 1][AROUSAL] < 5 else 1)
+                    labels_dom.append(0 if sub_labels[sub][i - 1][DOMINANCE] < 5 else 1)
+                
+                test_data.extend(data)
+                test_labels_val.extend(labels_val)
+                test_labels_aro.extend(labels_aro)
+                test_labels_dom.extend(labels_dom)
 
             test_data = np.array(test_data)
             test_labels_val = np.array(test_labels_val)
