@@ -13,16 +13,16 @@ class BaseModel:
 
     def load_preprocess_data(self):
         X_train = np.concatenate([
-            np.load(self.path_to_features + f"/S%02d_X_train.npy" % sub, allow_pickle=True)
+            np.load(self.path_to_features + "/S%02d_X_train.npy" % sub, allow_pickle=True)
             for sub in self.subjects], axis=0)
         Y_train = np.concatenate([
-            np.load(self.path_to_features + "/S%02d_Y_train_{self.label}.npy" % sub, allow_pickle=True)
+            np.load(self.path_to_features + f"/S%02d_Y_train_{self.label}.npy" % sub, allow_pickle=True)
             for sub in self.subjects], axis=0)
         X_test = np.concatenate([
             np.load(self.path_to_features + "/S%02d_X_test.npy" % sub, allow_pickle=True)
             for sub in self.subjects], axis=0)
         Y_test = np.concatenate([
-            np.load(self.path_to_features + "/S%02d_Y_test_{self.label}.npy" % sub, allow_pickle=True)
+            np.load(self.path_to_features + f"/S%02d_Y_test_{self.label}.npy" % sub, allow_pickle=True)
             for sub in self.subjects], axis=0)
 
         Y_train = np.reshape(Y_train, (-1, 1))
@@ -45,7 +45,7 @@ class BaseModel:
         model = create_keras_model(X_train.shape[1:])
         hp = HyperParameters()
         model.compile(loss='binary_crossentropy', metrics=['accuracy'], optimizer=tf.keras.optimizers.SGD(learning_rate=hp.base_loss))
-        history = model.fit(x=X_train, y=Y_train, epochs=self.epochs, batch_size=self.batch_size, validation_data=(X_test, Y_test))
+        history = model.fit(x=X_train, y=Y_train, epochs=hp.epochs, batch_size=hp.batch_size, validation_data=(X_test, Y_test))
         return model, history
 
     

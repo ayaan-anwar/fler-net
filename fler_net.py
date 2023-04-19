@@ -11,21 +11,22 @@ from base import BaseModel
 if __name__ == '__main__':
     dataset = 'deap'
     label = 'val'
-    ts = datetime.utcnow().strftime("%Y-%m-%d")
+    ts = datetime.datetime.utcnow().strftime("%Y-%m-%d")
+    extract_features = False
+    if extract_features == True:
+        # Config
+        with open('config/deap.json') as f:
+            conf = json.load(f)
+        
+        # Load data
+        (sub_data, sub_labels) = deap_utils.load_deap_data('DEAP/')
 
-    # Config
-    with open('config/deap.json') as f:
-        conf = json.load(f)
-    
-    # Load data
-    (sub_data, sub_labels) = deap_utils.load_deap_data('DEAP/')
-
-    fe = FeatureExtractor(conf)
-    fe.extract_features(sub_data, sub_labels)
-    
-    del sub_data
-    del sub_labels
-    del fe
+        fe = FeatureExtractor(conf)
+        fe.extract_features(sub_data, sub_labels)
+        
+        del sub_data
+        del sub_labels
+        del fe
 
     basemodel = BaseModel(label, 'DEAP_Features/')
     model, results = basemodel.train()

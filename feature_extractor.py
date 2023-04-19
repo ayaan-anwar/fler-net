@@ -2,6 +2,7 @@ import constants
 
 import numpy as np
 import antropy as ant
+import os
 
 from scipy.integrate import simps
 from scipy import signal
@@ -75,6 +76,8 @@ class FeatureExtractor:
         return features_for_sample
     
     def extract_features(self, sub_data, sub_labels, out_dir='DEAP_Features/'):
+        if not os.path.exists(out_dir):
+            os.makedirs(out_dir)
         VALENCE = 0
         AROUSAL = 1
         DOMINANCE = 2
