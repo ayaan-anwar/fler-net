@@ -14,6 +14,7 @@ class FeatureExtractor:
     def __init__(self, conf: dict) -> None:
         self.WINDOW_SECONDS = conf["WINDOW_SECONDS"]
         self.SAMPLING_FREQUENCY = conf["SAMPLING_FREQUENCY"]
+        self.STEP = int(conf["UPDATE_STEP"] * self.SAMPLING_FREQUENCY)
         self.WINDOW_SIZE = self.WINDOW_SECONDS * self.SAMPLING_FREQUENCY
         self.DATA_LEN = conf["DATA_LEN_SECONDS"] * self.SAMPLING_FREQUENCY
         self.START_TIMESTAMP = conf["START_TIMESTAMP_SECONDS"] * self.SAMPLING_FREQUENCY
@@ -100,7 +101,7 @@ class FeatureExtractor:
                 labels_aro = []
                 labels_dom = []
             
-                for j in range(self.START_TIMESTAMP, self.DATA_LEN - self.WINDOW_SIZE, self.SAMPLING_FREQUENCY):
+                for j in range(self.START_TIMESTAMP, self.DATA_LEN - self.WINDOW_SIZE, self.STEP):
                     print(f"Sub {sub} Situation {i} / 40: ({j} - {j + self.WINDOW_SIZE}) / {len(sub_sit_data[0])} ; Channels = {len(sub_sit_data)}")
                     sample = sub_sit_data[:, j : j + self.WINDOW_SIZE]
 
