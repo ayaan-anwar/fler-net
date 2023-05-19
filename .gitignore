@@ -1,3 +1,7 @@
 .ipynb_checkpoints/
 DEAP_Features/
 DEAP/
+__pycache__/
+*.pkl
+*.h5
+*.npy
