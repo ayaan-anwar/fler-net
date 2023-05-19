@@ -14,3 +14,6 @@ class HyperParameters:
         self.fed_loss_server = 1.0
         self.epochs = 10000
         self.batch_size = 256
+        self.fed_rounds = 20000
+        self.epochs_per_round = 5
+        self.shuffle = 1000
