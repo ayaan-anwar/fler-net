@@ -9,10 +9,10 @@ class HyperParameters:
         self.dropout3 = 0.2
         self.output_layer = 1
         self.output_activation = 'sigmoid'
-        self.base_loss = 0.01
-        self.fed_loss_client = 0.1
+        self.base_loss = 0.001
+        self.fed_loss_client = 0.005
         self.fed_loss_server = 1.0
-        self.epochs = 10000
+        self.epochs = 8000
         self.batch_size = 256
         self.fed_rounds = 20000
         self.epochs_per_round = 5
