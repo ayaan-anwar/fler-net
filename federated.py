@@ -116,19 +116,26 @@ class FederatedModel:
                 Y_pred = keras_model.predict(self.X_test, verbose=0)
                 Y_pred = [round(x[0]) for x in Y_pred]
                 print(confusion_matrix(self.Y_test, Y_pred))
+            return loss, accuracy
+
+        results = {'loss': [], 'accuracy': [], 'val_loss': [], 'val_accuracy': []}
 
         for round_num in range(NUM_ROUNDS):
             print('Round {r}'.format(r=round_num))
-            keras_evaluate(state, round_num)
+            val_loss, val_accuracy = keras_evaluate(state, round_num)
             result = iterative_process.next(state, federated_train_data)
             state = result.state
             train_metrics = result.metrics['client_work']['train']
             print('\tTrain: loss={l:.3f}, accuracy={a:.3f}'.format(
                 l=train_metrics['loss'], a=train_metrics['binary_accuracy']))
-            #   print('\tTrain: {}'.format(train_metrics))
+            results['loss'].append(train_metrics['loss'])
+            results['accuracy'].append(train_metrics['binary_accuracy'])
+            results['val_loss'].append(val_loss)
+            results['val_accuracy'].append(val_accuracy)
 
         print('Final evaluation')
         keras_evaluate(state, NUM_ROUNDS + 1)
+        return results
 
     def example_preprocess(self, client_id):
         return OrderedDict(
