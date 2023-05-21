@@ -21,6 +21,7 @@ class FeatureExtractor:
         self.NUM_CHANNELS = conf["NUM_CHANNELS"]
         self.NUM_SUBJECTS = conf["NUM_SUBJECTS"]
         self.NUM_SITUATIONS = conf["NUM_SITUATIONS"]
+        self.THRESHOLD = conf["THRESHOLD"]
     
     def time_features(self, sample, NUM_CHANNELS, SAMPLING_FREQUENCY, WINDOW_SIZE):
         features_for_sample = []
@@ -102,7 +103,7 @@ class FeatureExtractor:
                 labels_dom = []
             
                 for j in range(self.START_TIMESTAMP, self.DATA_LEN - self.WINDOW_SIZE, self.STEP):
-                    print(f"Sub {sub} Situation {i} / 40: ({j} - {j + self.WINDOW_SIZE}) / {len(sub_sit_data[0])} ; Channels = {len(sub_sit_data)}")
+                    print(f"Sub {sub} Situation {i} / {self.NUM_SITUATIONS}: ({j} - {j + self.WINDOW_SIZE}) / {len(sub_sit_data[0])} ; Channels = {len(sub_sit_data)}")
                     sample = sub_sit_data[:, j : j + self.WINDOW_SIZE]
 
                     features = self.time_features(sample, self.NUM_CHANNELS, self.SAMPLING_FREQUENCY, self.WINDOW_SIZE)
@@ -110,9 +111,9 @@ class FeatureExtractor:
                     features = np.array(features)
                     print("Features shape = ", features.shape)
                     data.append(features)
-                    labels_val.append(0 if sub_labels[sub][i - 1][VALENCE] < 5 else 1)
-                    labels_aro.append(0 if sub_labels[sub][i - 1][AROUSAL] < 5 else 1)
-                    labels_dom.append(0 if sub_labels[sub][i - 1][DOMINANCE] < 5 else 1)
+                    labels_val.append(0 if sub_labels[sub][i - 1][VALENCE] < self.THRESHOLD else 1)
+                    labels_aro.append(0 if sub_labels[sub][i - 1][AROUSAL] < self.THRESHOLD else 1)
+                    labels_dom.append(0 if sub_labels[sub][i - 1][DOMINANCE] < self.THRESHOLD else 1)
 
                 X_train, X_test, Y_train, Y_test = train_test_split(data, labels_val, test_size=0.20, random_state=constants.SEED1)
                 for x, y in zip(X_train, Y_train):
